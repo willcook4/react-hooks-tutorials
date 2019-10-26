@@ -1,3 +1,5 @@
+# React Hooks Notes
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
@@ -12,11 +14,6 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.<br />
 You will also see any lint errors in the console.
 
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
 ### `yarn build`
 
 Builds the app for production to the `build` folder.<br />
@@ -27,42 +24,110 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `yarn eject`
+## Will's notes on React hooks
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+JavaScript array descructuring.
+eg
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+const myColors = ['red', 'green']
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+destructured and assigned to new variables:
+const [myColorThree, myColorFour] = colors
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+// console.log(myColorThree) = 'red'
+// console.log(myColorFour) = 'green'
+```
 
-## Learn More
+## useState
+- useState -> Allow a functional component to use component-level state.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+const [ currentValue, setValue ] = useState( initialValue )
+```
+__currentValue__ === the value of the piece of state.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+__setValue__ === function to call when we want to update our state & render.
 
-### Code Splitting
+__useState__ === React function
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+__initialValue__ === to setting the state initial value in the class constructor
 
-### Analyzing the Bundle Size
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+## useEffect
+- useEffect -> Allow a functional component to use lifecycle methods.
+combination of the __componentDidMount__ and the __componentDidUpdate__ lifecycle methods
 
-### Making a Progressive Web App
+```
+useEffect(() => {}, [])
+```
+useEffect is provided by React.
+The first argument is the function that runs if the second argumnet has changed.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+eg:
+```
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
-### Advanced Configuration
+const ResourceList = ({ resource }) => {
+  const [ resources, setResources ] = useState([])
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+  const fetchResource = async (resource) => {
+    const resp = await axios.get(
+      `https://jsonplaceholder.typicode.com/${resource}`
+    )
+    
+    setResources(resp.data)
+  }
 
-### Deployment
+  useEffect(() => {
+    fetchResource(resource)
+  }, [ resource ])
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+  return (
+    <div>{resources.length}</div>
+  )
+}
 
-### `yarn build` fails to minify
+export default ResourceList
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+__explaination__ fetchResource in the useEffect function gets called whenever the resource state changes.
+
+|  function at first Render | function at second render | is the function provided to useEffect called on rerender? |
+| ------------- |:-------------:| ---- |
+| useEffect(() => {})  | useEffect(() => {}) | Called, nothing to compare to so always run |
+| useEffect(() => {}, []) | useEffect(() => {}, []) | Not Called ```// [] === [])```, run on first render only|
+| useEffect(() => {}, [1] | useEffect(() => {}, [1]) | Not Called ```// [1] === [1]```|
+| useEffect(() => {}. ['hi]) | useEffect(() => {}, [1]) | Called ``` // ['hi'] !== [1]``` |
+| useEffect(() => {}, [{color: 'red'}]) | useEffect(() => {}, [{color: 'red'}]) | Called ```// {color: 'red'} !== {color: 'red'}``` different objects in memory |
+| useEffect(() => {}, [10, 10]) | useEffect(() => {}, [10, 10]) | Not Called ```// [10, 10] === [10, 10]``` |
+| useEffect(() => {}, [10, 10]) | useEffect(() => {}, [10]) | Called ```// [10, 10] !== [10]``` |
+
+useEffect first argument function cannot take an async function or a promise. This is why in the resource example above we have the fetchResource function handling the async api call. The other workaround is to use the syntax for an immediatly invoked function. e.g.
+
+```
+(() => {
+  // defining the function
+  })
+  ( // this is the invocation)
+```
+
+```
+  useEffect (
+    () => {
+      (async resource => {
+        const resp = await axios.get(`https://jsonplaceholder.typicode.com/${resource}`)
+
+        setResources(resp.data)
+      })(resource)
+    },
+    [ resource ]
+  )
+```
+
+- useContext -> Allow a functional component to use the context system.
+
+- useRef -> Allow a functional component to use the ref system.
+
+- useReducer -> Allow a functional component to store data through a 'reducer'.
