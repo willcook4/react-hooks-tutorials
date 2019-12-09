@@ -1,21 +1,21 @@
-import {useState, useEffect} from 'react'
-import axios from 'axios' 
+import { useState, useEffect } from "react";
+import axios from "axios";
 
+// eslint-disable-next-line prettier/prettier
 const useResources = (resource) => {
-  const [ resources, setResources ] = useState([])
+  const [resources, setResources] = useState([]);
 
-  useEffect (
-    () => {
-      (async resource => {
-        const resp = await axios.get(`https://jsonplaceholder.typicode.com/${resource}`)
+  useEffect(() => {
+    (async resource => {
+      const resp = await axios.get(
+        `https://jsonplaceholder.typicode.com/${resource}`
+      );
 
-        setResources(resp.data)
-      })(resource)
-    },
-    [ resource ]
-  )
+      setResources(resp.data);
+    })(resource);
+  }, [resource]);
 
-  return resources
-}
+  return resources;
+};
 
-export default useResources
+export default useResources;
